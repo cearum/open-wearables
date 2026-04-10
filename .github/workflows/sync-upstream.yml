@@ -1,0 +1,67 @@
+name: Sync Upstream Releases
+
+on:
+  schedule:
+    - cron: "0 0 * * *"  # Daily at midnight UTC
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream remote
+        run: git remote add upstream https://github.com/the-momentum/open-wearables.git
+
+      - name: Fetch upstream tags
+        run: git fetch upstream --tags
+
+      - name: Check for new tags
+        id: check
+        run: |
+          LATEST_UPSTREAM=$(git tag -l --sort=-v:refname | head -n 1)
+          echo "latest_tag=${LATEST_UPSTREAM}" >> "$GITHUB_OUTPUT"
+
+          if git rev-parse "synced-${LATEST_UPSTREAM}" >/dev/null 2>&1; then
+            echo "new_release=false" >> "$GITHUB_OUTPUT"
+            echo "Tag ${LATEST_UPSTREAM} already synced"
+          else
+            echo "new_release=true" >> "$GITHUB_OUTPUT"
+            echo "New tag found: ${LATEST_UPSTREAM}"
+          fi
+
+      - name: Merge upstream main
+        if: steps.check.outputs.new_release == 'true'
+        run: |
+          git fetch upstream main
+          git merge upstream/main --no-edit || git merge --abort
+          git push origin main
+
+      - name: Create synced tag
+        if: steps.check.outputs.new_release == 'true'
+        run: |
+          TAG=${{ steps.check.outputs.latest_tag }}
+          git tag "synced-${TAG}"
+          git push origin "synced-${TAG}"
+
+      - name: Create release
+        if: steps.check.outputs.new_release == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG=${{ steps.check.outputs.latest_tag }}
+          gh release create "${TAG}" \
+            --title "Upstream ${TAG}" \
+            --notes "Auto-synced from upstream release ${TAG}" \
+            --target main
