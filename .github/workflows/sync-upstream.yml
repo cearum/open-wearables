@@ -62,6 +62,7 @@ jobs:
         run: |
           TAG=${{ steps.check.outputs.latest_tag }}
           gh release create "${TAG}" \
+            --repo ${{ github.repository }} \
             --title "Upstream ${TAG}" \
             --notes "Auto-synced from upstream release ${TAG}" \
             --target main
