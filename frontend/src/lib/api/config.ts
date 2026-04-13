@@ -1,5 +1,8 @@
 export const API_CONFIG = {
-  baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:8000',
+  baseUrl: (() => {
+    const url = import.meta.env.VITE_API_URL;
+    return url && url !== '__VITE_API_URL_PLACEHOLDER__' ? url : 'http://localhost:8000';
+  })(),
   timeout: 30000, // 30 seconds
   retryAttempts: 3,
   retryDelay: 1000, // 1 second

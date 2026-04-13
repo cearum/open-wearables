@@ -102,13 +102,13 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      args:
-        VITE_API_URL: ${VITE_API_URL:?Set VITE_API_URL in your environment}
     container_name: frontend__open-wearables
     image: open-wearables-frontend:latest
     pull_policy: never
     ports:
       - "3000:3000"
+    environment:
+      - VITE_API_URL=${VITE_API_URL:?Set VITE_API_URL in your environment}
     depends_on:
       - app
     restart: unless-stopped
