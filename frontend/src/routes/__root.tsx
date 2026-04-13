@@ -13,6 +13,11 @@ import { Toaster } from '@/components/ui/sonner';
 
 import appCss from '../styles.css?url';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const runtimeApiUrl = typeof (globalThis as any).process !== 'undefined'
+  ? (globalThis as any).process.env?.VITE_API_URL || ''
+  : '';
+
 export const Route = createRootRoute({
   head: () => ({
     meta: [
@@ -102,7 +107,13 @@ function RootComponent() {
     <html lang="en" className="dark">
       <head>
         <HeadContent />
-        <script src="/runtime-config.js" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.__RUNTIME_CONFIG__=${JSON.stringify({
+              VITE_API_URL: runtimeApiUrl,
+            })};`,
+          }}
+        />
       </head>
       <body>
         <QueryClientProvider client={queryClient}>
