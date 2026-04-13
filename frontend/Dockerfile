@@ -7,8 +7,8 @@ RUN corepack enable && corepack prepare pnpm@10.13.1 --activate
 WORKDIR /app
 
 # Build arguments for environment variables
-# ARG VITE_API_URL=http://localhost:8000
-ARG VITE_API_URL=__VITE_API_URL_PLACEHOLDER__
+ARG VITE_API_URL=http://localhost:8000
+# ARG VITE_API_URL=__VITE_API_URL_PLACEHOLDER__
 ENV VITE_API_URL=${VITE_API_URL}
 
 # Copy package files
@@ -57,9 +57,9 @@ ENV PORT=3000
 ENV HOST=0.0.0.0
 
 # Copy in the docker-entrypoint to use the .env in a pre-built image.
-COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
-ENTRYPOINT ["/docker-entrypoint.sh"]
+# COPY docker-entrypoint.sh /docker-entrypoint.sh
+# RUN chmod +x /docker-entrypoint.sh
+# ENTRYPOINT ["/docker-entrypoint.sh"]
 
 # Run the Nitro server
 CMD ["node", ".output/server/index.mjs"]
