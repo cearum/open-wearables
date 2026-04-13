@@ -56,5 +56,10 @@ ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOST=0.0.0.0
 
+# Copy in the docker-entrypoint to use the .env in a pre-built image.
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+ENTRYPOINT ["/docker-entrypoint.sh"]
+
 # Run the Nitro server
 CMD ["node", ".output/server/index.mjs"]
