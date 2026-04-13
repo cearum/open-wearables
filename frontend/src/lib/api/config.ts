@@ -1,8 +1,20 @@
+// Runtime config injected by docker-entrypoint.sh via /runtime-config.js
+// Falls back to Vite env vars for local development
+const getRuntimeConfig = (key: string): string | undefined => {
+  // Browser: read from runtime config script injected by docker-entrypoint.sh
+  if (typeof window !== 'undefined' && window.__RUNTIME_CONFIG__?.[key]) {
+    return window.__RUNTIME_CONFIG__[key];
+  }
+  // Server (Nitro/SSR): read from process.env
+  if (typeof process !== 'undefined' && process.env?.[key]) {
+    return process.env[key];
+  }
+  // Local dev: Vite inlines these at build time
+  return import.meta.env[key] as string | undefined;
+};
+
 export const API_CONFIG = {
-  baseUrl: (() => {
-    const url = import.meta.env.VITE_API_URL;
-    return url && url !== '__VITE_API_URL_PLACEHOLDER__' ? url : 'http://localhost:8000';
-  })(),
+  baseUrl: getRuntimeConfig('VITE_API_URL') || 'http://localhost:8000',
   timeout: 30000, // 30 seconds
   retryAttempts: 3,
   retryDelay: 1000, // 1 second

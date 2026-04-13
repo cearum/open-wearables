@@ -102,6 +102,7 @@ function RootComponent() {
     <html lang="en" className="dark">
       <head>
         <HeadContent />
+        <script src="/runtime-config.js" />
       </head>
       <body>
         <QueryClientProvider client={queryClient}>

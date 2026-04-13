@@ -1,10 +1,13 @@
 #!/bin/sh
 set -e
 
-if [ -n "$VITE_API_URL" ]; then
-  # Replace placeholder in all JS/MJS files across the entire build output
-  find /app/.output -type f \( -name '*.js' -o -name '*.mjs' -o -name '*.json' \) -exec sed -i "s|__VITE_API_URL_PLACEHOLDER__|${VITE_API_URL}|g" {} +
-  find /usr/share/nginx/html -type f \( -name '*.js' -o -name '*.json' \) -exec sed -i "s|__VITE_API_URL_PLACEHOLDER__|${VITE_API_URL}|g" {} + 2>/dev/null || true
-fi
+# Generate runtime config from environment variables
+# Served as a static JS file that sets window.__RUNTIME_CONFIG__ before the app loads
+mkdir -p /app/.output/public
+cat > /app/.output/public/runtime-config.js <<EOF
+window.__RUNTIME_CONFIG__ = {
+  VITE_API_URL: "${VITE_API_URL:-}"
+};
+EOF
 
 exec "$@"
