@@ -7,7 +7,8 @@ RUN corepack enable && corepack prepare pnpm@10.13.1 --activate
 WORKDIR /app
 
 # Build arguments for environment variables
-ARG VITE_API_URL=http://localhost:8000
+# ARG VITE_API_URL=http://localhost:8000
+ARG VITE_API_URL=__VITE_API_URL_PLACEHOLDER__
 ENV VITE_API_URL=${VITE_API_URL}
 
 # Copy package files
