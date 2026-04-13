@@ -6,8 +6,7 @@ RUN corepack enable && corepack prepare pnpm@10.13.1 --activate
 
 WORKDIR /app
 
-# Use a placeholder that docker-entrypoint.sh will replace at runtime
-ENV VITE_API_URL=__VITE_API_URL_PLACEHOLDER__
+# No VITE_API_URL needed at build time — injected at runtime via docker-entrypoint.sh
 
 # Copy package files
 COPY package.json pnpm-lock.yaml ./
