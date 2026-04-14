@@ -175,6 +175,9 @@ class FitbitWorkouts(BaseWorkoutsTemplate):
             try:
                 record, detail = self._normalize_workout(raw, user_id)
                 created_record = event_record_service.create(db, record)
+                # Skip detail creation if the record already existed (duplicate)
+                if created_record.id != record.id:
+                    continue
                 detail_for_record = detail.model_copy(update={"record_id": created_record.id})
                 event_record_service.create_detail(db, detail_for_record)
             except Exception as e:
