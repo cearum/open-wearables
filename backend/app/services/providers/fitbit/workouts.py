@@ -139,9 +139,21 @@ class FitbitWorkouts(BaseWorkoutsTemplate):
 
     def get_workouts_from_api(self, db: DbSession, user_id: UUID, **kwargs: Any) -> Any:
         """Fetch workouts from Fitbit API with optional date range."""
-        start_date = kwargs.get("start_date") or (datetime.now(timezone.utc) - timedelta(days=30))
-        end_date = kwargs.get("end_date") or datetime.now(timezone.utc)
+        start_date = self._ensure_datetime(
+            kwargs.get("start_date"), datetime.now(timezone.utc) - timedelta(days=30)
+        )
+        end_date = self._ensure_datetime(
+            kwargs.get("end_date"), datetime.now(timezone.utc)
+        )
         return self.get_workouts(db, user_id, start_date, end_date)
+
+    def _ensure_datetime(self, value: Any, default: datetime) -> datetime:
+        """Convert a value to datetime if it's a string, or return default if None."""
+        if value is None:
+            return default
+        if isinstance(value, str):
+            return datetime.fromisoformat(value.replace("Z", "+00:00"))
+        return value
 
     def load_data(
         self,
@@ -150,8 +162,12 @@ class FitbitWorkouts(BaseWorkoutsTemplate):
         **kwargs: Any,
     ) -> bool:
         """Fetch activities since start_date and save to database."""
-        start_date = kwargs.get("start_date") or (datetime.now(timezone.utc) - timedelta(days=30))
-        end_date = kwargs.get("end_date") or datetime.now(timezone.utc)
+        start_date = self._ensure_datetime(
+            kwargs.get("start_date"), datetime.now(timezone.utc) - timedelta(days=30)
+        )
+        end_date = self._ensure_datetime(
+            kwargs.get("end_date"), datetime.now(timezone.utc)
+        )
 
         activities = self.get_workouts(db, user_id, start_date, end_date)
 
